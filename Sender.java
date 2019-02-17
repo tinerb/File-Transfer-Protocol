@@ -1,7 +1,9 @@
 package cp372_a2;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -46,7 +48,19 @@ public class Sender {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
+		
+		// create the needed listeners
+		AbstractAction action = new AbstractAction()
+		{
+		    @Override
+		    public void actionPerformed(ActionEvent e)
+		    {
+		        System.out.println("some action");
+		    }
+		};
+		
+		
+		frame = new JFrame("Sender");
 		frame.setBounds(100, 100, 295, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
@@ -55,15 +69,20 @@ public class Sender {
 		lblNewLabel.setBounds(10, 11, 144, 14);
 		frame.getContentPane().add(lblNewLabel);
 
+		// Reciever IP Address text field
 		textField = new JTextField();
 		textField.setBounds(164, 8, 86, 20);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
+		
+		
+		textField.addActionListener(action);
 
 		JLabel lblNewLabel_1 = new JLabel("Port# for Reciever:");
 		lblNewLabel_1.setBounds(10, 36, 144, 14);
 		frame.getContentPane().add(lblNewLabel_1);
 
+		// Port# for Reciever text field
 		textField_1 = new JTextField();
 		textField_1.setBounds(164, 33, 86, 20);
 		frame.getContentPane().add(textField_1);
@@ -73,6 +92,7 @@ public class Sender {
 		lblPortForSender.setBounds(10, 61, 144, 14);
 		frame.getContentPane().add(lblPortForSender);
 
+		// Port# for Sender text field
 		textField_2 = new JTextField();
 		textField_2.setBounds(164, 58, 86, 20);
 		frame.getContentPane().add(textField_2);
@@ -82,6 +102,7 @@ public class Sender {
 		lblNewLabel_2.setBounds(10, 86, 144, 14);
 		frame.getContentPane().add(lblNewLabel_2);
 
+		// Name of File text field
 		textField_3 = new JTextField();
 		textField_3.setBounds(164, 83, 86, 20);
 		frame.getContentPane().add(textField_3);
@@ -91,6 +112,7 @@ public class Sender {
 		lblNewLabel_3.setBounds(10, 111, 144, 14);
 		frame.getContentPane().add(lblNewLabel_3);
 
+		// Max Size of Datagram text field
 		textField_4 = new JTextField();
 		textField_4.setBounds(164, 108, 86, 20);
 		frame.getContentPane().add(textField_4);
@@ -104,6 +126,7 @@ public class Sender {
 		lblTimeout.setBounds(10, 189, 157, 14);
 		frame.getContentPane().add(lblTimeout);
 
+		// Timeout(microseconds) **DISPLAY ONLY** text field
 		textField_5 = new JTextField();
 		textField_5.setEditable(false);
 		textField_5.setBounds(164, 186, 86, 20);
@@ -114,6 +137,7 @@ public class Sender {
 		lblNewLabel_4.setBounds(10, 214, 144, 14);
 		frame.getContentPane().add(lblNewLabel_4);
 
+		// Transmission Time **DISPLAY ONLY** text field
 		textField_6 = new JTextField();
 		textField_6.setEditable(false);
 		textField_6.setBounds(164, 211, 86, 20);
