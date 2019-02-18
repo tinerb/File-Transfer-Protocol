@@ -117,21 +117,20 @@ public class Sender {
 		textField_4.setBounds(164, 108, 86, 20);
 		frame.getContentPane().add(textField_4);
 		textField_4.setColumns(10);
-
-		JButton btnNewButton = new JButton("Transfer");
-		btnNewButton.setBounds(10, 136, 89, 23);
-		frame.getContentPane().add(btnNewButton);
-
+		
 		JLabel lblTimeout = new JLabel("Timeout(microseconds):  ");
-		lblTimeout.setBounds(10, 189, 157, 14);
+		lblTimeout.setBounds(10, 139, 157, 14);
 		frame.getContentPane().add(lblTimeout);
 
 		// Timeout(microseconds) **DISPLAY ONLY** text field
 		textField_5 = new JTextField();
-		textField_5.setEditable(false);
-		textField_5.setBounds(164, 186, 86, 20);
+		textField_5.setBounds(164, 136, 86, 20);
 		frame.getContentPane().add(textField_5);
 		textField_5.setColumns(10);
+
+		JButton btnNewButton = new JButton("Transfer");
+		btnNewButton.setBounds(85, 175, 89, 23);
+		frame.getContentPane().add(btnNewButton);
 
 		JLabel lblNewLabel_4 = new JLabel("Transmission Time: ");
 		lblNewLabel_4.setBounds(10, 214, 144, 14);
