@@ -5,6 +5,13 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,6 +32,10 @@ public class Sender {
 	public String filename;
 	public int maxDatagramSize;
 	public int timeout; // in microseconds
+	
+	public DatagramSocket ds;
+	public InetAddress ip;
+	public DatagramPacket dp;
 	
 
 	/**
@@ -150,6 +161,28 @@ public class Sender {
 							" filename: " + filename +
 							" maxDatagramSize: " + maxDatagramSize +
 							" timeout: " + timeout + "\n");
+					
+					try {
+						ds = new DatagramSocket();
+
+					} catch (SocketException e1) {
+						e1.printStackTrace();
+					}  
+				    String str = "FUCK THIS";  
+				    try {
+						ip = InetAddress.getByName(ipAddress);
+					} catch (UnknownHostException e1) {
+						e1.printStackTrace();
+					}  
+				     
+				    dp = new DatagramPacket(str.getBytes(), str.length(), ip, portNum);  
+				    try {
+						ds.send(dp);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}  
+				    ds.close();  
+					
 				}
 
 
