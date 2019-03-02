@@ -6,6 +6,9 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -136,6 +139,24 @@ public class Reciever {
 				} else {
 					reliability = false;
 				}
+				try {
+					InetAddress address = InetAddress.getByName(ipAddress);
+					ds = new DatagramSocket(Integer.parseInt(port), address);
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				} catch (SocketException e) {
+					e.printStackTrace();
+				}
+				try {
+					ds.receive(dp);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				String str = new String(dp.getData(), 0, dp.getLength());
+				System.out.println(str);
+
 			}
 		});
 		receive.setBounds(10, 112, 89, 23);
