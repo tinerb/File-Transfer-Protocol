@@ -150,12 +150,13 @@ public class Reciever {
 					e.printStackTrace();
 				}
 				try {
+					ds.setSoTimeout(10000);
 					ds.receive(dp);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				String str = new String(dp.getData(), 0, dp.getLength());
-				System.out.println(str);
+				outputText.setText(str);
 
 			}
 		});
