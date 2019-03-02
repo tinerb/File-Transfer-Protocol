@@ -51,6 +51,7 @@ public class Reciever {
 				}
 			}
 		});
+
 	}
 
 	/**
@@ -141,7 +142,7 @@ public class Reciever {
 				}
 				try {
 					InetAddress address = InetAddress.getByName(ipAddress);
-					ds = new DatagramSocket(Integer.parseInt(port), address);
+					ds = new DatagramSocket(Integer.parseInt(port));
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (NumberFormatException e) {
@@ -155,8 +156,7 @@ public class Reciever {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				String str = new String(dp.getData(), 0, dp.getLength());
-				outputText.setText(str);
+				ds.close();
 
 			}
 		});
