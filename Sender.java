@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -142,5 +143,22 @@ public class Sender {
 		textField_6.setBounds(164, 211, 86, 20);
 		frame.getContentPane().add(textField_6);
 		textField_6.setColumns(10);
+		
+		btnNewButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(textField.getText().equals("") ||
+				   textField_1.getText().equals("") ||
+				   textField_2.getText().equals("") ||
+				   textField_3.getText().equals("") ||
+				   textField_4.getText().equals("") ||
+				   textField_5.getText().equals("") ||
+				   textField_6.getText().equals("")) {
+					System.out.println("Please enter values for each text field to begin transfer");
+				}
+				
+			}
+		});
+		
 	}
 }
