@@ -3,7 +3,6 @@ package cp372_a2;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -164,6 +163,7 @@ public class Sender {
 					
 					try {
 						ds = new DatagramSocket();
+						
 
 					} catch (SocketException e1) {
 						e1.printStackTrace();
