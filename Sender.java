@@ -196,8 +196,7 @@ public class Sender {
 	
 	public static class SendFile {
 		
-		private final int CHUNK_SIZE = maxDatagramSize;
-		private final static int BUFFER_LEN = 4096;
+		private final static int CHUNK_SIZE = maxDatagramSize;
 
 		// Initialize values used in chunked file
 		private int m_offset = 0;
@@ -211,7 +210,7 @@ public class Sender {
 		
 		private static byte[] getBytesFromInputStream(FileInputStream is) {
 			try (ByteArrayOutputStream os = new ByteArrayOutputStream();) {
-				byte[] buffer = new byte[BUFFER_LEN];
+				byte[] buffer = new byte[CHUNK_SIZE];
 
 				for (int len; (len = is.read(buffer)) != -1;) {
 					os.write(buffer, 0, len);
