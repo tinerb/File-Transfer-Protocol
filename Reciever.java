@@ -28,11 +28,12 @@ public class Reciever {
 
 	private JFrame frame;
 	private JTextField ipAddressText;
-	private JTextField portText;
+	private JTextField portTextSender;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private JTextField fileNameText;
 	private JTextField receivedPacketsText;
 	private JTextField outputText;
+	private JTextField portTextReceiver;
 
 	/**
 	 * Launch the application.
@@ -91,40 +92,40 @@ public class Reciever {
 		frame.getContentPane().add(lblNewLabel_1);
 
 		// Port# for Sender text field
-		portText = new JTextField();
-		portText.setBounds(176, 33, 86, 20);
-		frame.getContentPane().add(portText);
-		portText.setColumns(10);
+		portTextSender = new JTextField();
+		portTextSender.setBounds(176, 33, 86, 20);
+		frame.getContentPane().add(portTextSender);
+		portTextSender.setColumns(10);
 
 		JRadioButton reliableButton = new JRadioButton("Reliable");
 		buttonGroup.add(reliableButton);
-		reliableButton.setBounds(10, 82, 109, 23);
+		reliableButton.setBounds(10, 109, 109, 23);
 		frame.getContentPane().add(reliableButton);
 
 		JRadioButton unreliableButton = new JRadioButton("Unreliable");
 		buttonGroup.add(unreliableButton);
-		unreliableButton.setBounds(121, 82, 109, 23);
+		unreliableButton.setBounds(121, 109, 109, 23);
 		frame.getContentPane().add(unreliableButton);
 		buttonGroup.setSelected(reliableButton.getModel(), true);
 
 		JLabel lblNameOfFile = new JLabel("Name of File:");
-		lblNameOfFile.setBounds(10, 61, 142, 14);
+		lblNameOfFile.setBounds(10, 88, 142, 14);
 		frame.getContentPane().add(lblNameOfFile);
 
 		// Name of File text field
 		fileNameText = new JTextField();
-		fileNameText.setBounds(176, 58, 86, 20);
+		fileNameText.setBounds(176, 82, 86, 20);
 		frame.getContentPane().add(fileNameText);
 		fileNameText.setColumns(10);
 
 		JLabel lblCurrentOfRecieved = new JLabel("Current# of Received Packets:");
-		lblCurrentOfRecieved.setBounds(10, 146, 208, 14);
+		lblCurrentOfRecieved.setBounds(10, 173, 208, 14);
 		frame.getContentPane().add(lblCurrentOfRecieved);
 
 		// Current# of Recieved Packets **DISPLAY ONLY** text field
 		receivedPacketsText = new JTextField();
 		receivedPacketsText.setEditable(false);
-		receivedPacketsText.setBounds(10, 171, 165, 20);
+		receivedPacketsText.setBounds(10, 198, 165, 20);
 		frame.getContentPane().add(receivedPacketsText);
 		receivedPacketsText.setColumns(10);
 
@@ -133,7 +134,7 @@ public class Reciever {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ipAddress = ipAddressText.getText();
-				port = portText.getText();
+				port = portTextSender.getText();
 				file = fileNameText.getText();
 				if (buttonGroup.getSelection().equals(reliableButton.getModel())) {
 					reliability = true;
@@ -151,27 +152,33 @@ public class Reciever {
 					e.printStackTrace();
 				}
 				try {
-					ds.setSoTimeout(10000);
 					ds.receive(dp);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				ds.close();
-
 			}
 		});
-		receive.setBounds(10, 112, 89, 23);
+		receive.setBounds(10, 139, 89, 23);
 		frame.getContentPane().add(receive);
 
 		JLabel lblNewLabel_3 = new JLabel("Output:");
-		lblNewLabel_3.setBounds(10, 202, 46, 14);
+		lblNewLabel_3.setBounds(10, 229, 46, 14);
 		frame.getContentPane().add(lblNewLabel_3);
 
 		outputText = new JTextField();
 		outputText.setEditable(false);
-		outputText.setBounds(10, 227, 252, 80);
+		outputText.setBounds(10, 254, 252, 53);
 		frame.getContentPane().add(outputText);
 		outputText.setColumns(10);
 
+		JLabel lblPortForReciever = new JLabel("Port# for Receiver");
+		lblPortForReciever.setBounds(10, 61, 109, 14);
+		frame.getContentPane().add(lblPortForReciever);
+
+		portTextReceiver = new JTextField();
+		portTextReceiver.setBounds(176, 58, 86, 20);
+		frame.getContentPane().add(portTextReceiver);
+		portTextReceiver.setColumns(10);
 	}
 }
