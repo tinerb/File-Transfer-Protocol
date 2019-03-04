@@ -2,7 +2,6 @@ package cp372_a2;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -20,22 +19,22 @@ public class Sender {
 
 	private JFrame frame;
 	private JTextField ipAddressText;
-	private JTextField portNumText;
+	private JTextField portNumTextReceiver;
 	private JTextField filenameText;
 	private JTextField datagramSizeText;
 	private JTextField timeoutText;
 	private JTextField transmissionTime;
-	
+
 	public String ipAddress;
 	public int portNum;
 	public String filename;
 	public int maxDatagramSize;
 	public int timeout; // in microseconds
-	
+
 	public DatagramSocket ds;
 	public InetAddress ip;
 	public DatagramPacket dp;
-	
+	private JTextField portNumTextSender;
 
 	/**
 	 * Launch the application.
@@ -65,7 +64,7 @@ public class Sender {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		
+
 		frame = new JFrame("Sender");
 		frame.setBounds(100, 100, 295, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,15 +80,15 @@ public class Sender {
 		frame.getContentPane().add(ipAddressText);
 		ipAddressText.setColumns(10);
 
-		JLabel lblNewLabel_1 = new JLabel("Port# for Reciever:");
+		JLabel lblNewLabel_1 = new JLabel("Port# for Receiver:");
 		lblNewLabel_1.setBounds(10, 36, 144, 14);
 		frame.getContentPane().add(lblNewLabel_1);
 
 		// Port# for Reciever text field
-		portNumText = new JTextField();
-		portNumText.setBounds(164, 33, 86, 20);
-		frame.getContentPane().add(portNumText);
-		portNumText.setColumns(10);
+		portNumTextReceiver = new JTextField();
+		portNumTextReceiver.setBounds(164, 33, 86, 20);
+		frame.getContentPane().add(portNumTextReceiver);
+		portNumTextReceiver.setColumns(10);
 
 		JLabel lblNewLabel_2 = new JLabel("Name of File:");
 		lblNewLabel_2.setBounds(10, 86, 144, 14);
@@ -110,7 +109,7 @@ public class Sender {
 		datagramSizeText.setBounds(164, 108, 86, 20);
 		frame.getContentPane().add(datagramSizeText);
 		datagramSizeText.setColumns(10);
-		
+
 		JLabel lblTimeout = new JLabel("Timeout(microseconds):  ");
 		lblTimeout.setBounds(10, 139, 157, 14);
 		frame.getContentPane().add(lblTimeout);
@@ -135,59 +134,59 @@ public class Sender {
 		transmissionTime.setBounds(164, 211, 86, 20);
 		frame.getContentPane().add(transmissionTime);
 		transmissionTime.setColumns(10);
-		
+
+		JLabel lblNewLabel_5 = new JLabel("Port# for Sender:");
+		lblNewLabel_5.setBounds(10, 61, 97, 14);
+		frame.getContentPane().add(lblNewLabel_5);
+
+		portNumTextSender = new JTextField();
+		portNumTextSender.setBounds(164, 58, 86, 20);
+		frame.getContentPane().add(portNumTextSender);
+		portNumTextSender.setColumns(10);
+
 		sendButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(ipAddressText.getText().equals("") ||
-				   portNumText.getText().equals("") ||
-				   filenameText.getText().equals("") ||
-				   datagramSizeText.getText().equals("") ||
-				   timeoutText.getText().equals("")) {
+				if (ipAddressText.getText().equals("") || portNumTextReceiver.getText().equals("")
+						|| filenameText.getText().equals("") || datagramSizeText.getText().equals("")
+						|| timeoutText.getText().equals("")) {
 					System.out.println("Please enter values for each text field to begin transfer");
-				}
-				else {
-					portNum = Integer.parseInt(portNumText.getText());
+				} else {
+					portNum = Integer.parseInt(portNumTextReceiver.getText());
 					ipAddress = ipAddressText.getText();
 					filename = filenameText.getText();
-					maxDatagramSize = Integer.parseInt(datagramSizeText.getText());	
+					maxDatagramSize = Integer.parseInt(datagramSizeText.getText());
 					timeout = Integer.parseInt(timeoutText.getText());
-					
-					
+
 					// input debugging
-					System.out.println("portNum: " + portNum + 
-							" ipAddress: " + ipAddress + 
-							" filename: " + filename +
-							" maxDatagramSize: " + maxDatagramSize +
-							" timeout: " + timeout + "\n");
-					
+					System.out.println("portNum: " + portNum + " ipAddress: " + ipAddress + " filename: " + filename
+							+ " maxDatagramSize: " + maxDatagramSize + " timeout: " + timeout + "\n");
+
 					try {
 						ds = new DatagramSocket();
-						
 
 					} catch (SocketException e1) {
 						e1.printStackTrace();
-					}  
-				    String str = "FUCK THIS";  
-				    try {
+					}
+					String str = "FUCK THIS";
+					try {
 						ip = InetAddress.getByName(ipAddress);
 					} catch (UnknownHostException e1) {
 						e1.printStackTrace();
-					}  
-				     
-				    dp = new DatagramPacket(str.getBytes(), str.length(), ip, portNum);  
-				    try {
+					}
+
+					dp = new DatagramPacket(str.getBytes(), str.length(), ip, portNum);
+					try {
 						ds.send(dp);
 					} catch (IOException e1) {
 						e1.printStackTrace();
-					}  
-				    ds.close();  
-					
-				}
+					}
+					ds.close();
 
+				}
 
 			}
 		});
-		
+
 	}
 }
