@@ -199,13 +199,13 @@ public class Sender {
 		private final static int CHUNK_SIZE = maxDatagramSize;
 
 		// Initialize values used in chunked file
-		private int m_offset = 0;
-		private byte[] m_data;
+		private int offset = 0;
+		private byte[] send_data;
 		private FileInputStream m_internalStream;
 
 		public SendFile(String fileName) throws FileNotFoundException {
 			m_internalStream = new FileInputStream(fileName);
-			this.m_data = getBytesFromInputStream(this.m_internalStream);
+			this.send_data = getBytesFromInputStream(this.m_internalStream);
 		}
 		
 		private static byte[] getBytesFromInputStream(FileInputStream is) {
@@ -222,6 +222,28 @@ public class Sender {
 				// something went wrong return null
 				return null;
 			}
+		}
+		
+		public byte[] getByteChunk() throws IOException {
+			byte[] b = new byte[CHUNK_SIZE];
+			int length = b.length;
+
+			if (this.offset == this.send_data.length) {
+				// close down the link
+				System.out.println("It's over");
+			}
+
+			if (this.offset + b.length > this.send_data.length) {
+				length = 1;
+				b = new byte[length];
+			}
+
+			// Copy our data into where need it to be
+			System.arraycopy(this.send_data, this.offset, b, 0, length);
+
+			this.offset += length;
+
+			return b;
 		}
 
 		
