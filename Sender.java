@@ -3,6 +3,9 @@ package cp372_a2;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -24,17 +27,18 @@ public class Sender {
 	private JTextField datagramSizeText;
 	private JTextField timeoutText;
 	private JTextField transmissionTime;
+	private JTextField portNumTextSender;
 
 	public String ipAddress;
 	public int portNum;
 	public String filename;
-	public int maxDatagramSize;
+	public static int maxDatagramSize;
 	public int timeout; // in microseconds
 
 	public DatagramSocket ds;
 	public InetAddress ip;
 	public DatagramPacket dp;
-	private JTextField portNumTextSender;
+	
 
 	/**
 	 * Launch the application.
@@ -189,4 +193,39 @@ public class Sender {
 		});
 
 	}
+	
+	public static class SendFile {
+		
+		private final int CHUNK_SIZE = maxDatagramSize;
+		private final static int BUFFER_LEN = 4096;
+
+		// Initialize values used in chunked file
+		private int m_offset = 0;
+		private byte[] m_data;
+		private FileInputStream m_internalStream;
+
+		public SendFile(String fileName) throws FileNotFoundException {
+			m_internalStream = new FileInputStream(fileName);
+			this.m_data = getBytesFromInputStream(this.m_internalStream);
+		}
+		
+		private static byte[] getBytesFromInputStream(FileInputStream is) {
+			try (ByteArrayOutputStream os = new ByteArrayOutputStream();) {
+				byte[] buffer = new byte[BUFFER_LEN];
+
+				for (int len; (len = is.read(buffer)) != -1;) {
+					os.write(buffer, 0, len);
+				}
+				os.flush();
+
+				return os.toByteArray();
+			} catch (IOException e) {
+				// something went wrong return null
+				return null;
+			}
+		}
+
+		
+	}
+	
 }
