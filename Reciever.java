@@ -156,6 +156,7 @@ public class Reciever {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				System.out.println(dp.getData().length);
 				ds.close();
 			}
 		});

@@ -38,7 +38,6 @@ public class Sender {
 	public DatagramSocket ds;
 	public InetAddress ip;
 	public DatagramPacket dp;
-	
 
 	/**
 	 * Launch the application.
@@ -178,8 +177,13 @@ public class Sender {
 					} catch (UnknownHostException e1) {
 						e1.printStackTrace();
 					}
-
-					dp = new DatagramPacket(str.getBytes(), str.length(), ip, portNum);
+					SendFile test;
+					try {
+						test = new SendFile(filename);
+						dp = new DatagramPacket(test.send_data, test.send_data.length, ip, portNum);
+					} catch (FileNotFoundException e2) {
+						e2.printStackTrace();
+					}
 					try {
 						ds.send(dp);
 					} catch (IOException e1) {
@@ -193,9 +197,9 @@ public class Sender {
 		});
 
 	}
-	
+
 	public static class SendFile {
-		
+
 		private final static int CHUNK_SIZE = maxDatagramSize;
 
 		// Initialize values used in chunked file
@@ -207,12 +211,12 @@ public class Sender {
 			m_internalStream = new FileInputStream(fileName);
 			this.send_data = getBytesFromInputStream(this.m_internalStream);
 		}
-		
+
 		private static byte[] getBytesFromInputStream(FileInputStream is) {
 			try (ByteArrayOutputStream os = new ByteArrayOutputStream();) {
 				byte[] buffer = new byte[CHUNK_SIZE];
-
-				for (int len; (len = is.read(buffer)) != -1;) {
+				int len;
+				while ((len = is.read(buffer)) != -1) {
 					os.write(buffer, 0, len);
 				}
 				os.flush();
@@ -223,7 +227,7 @@ public class Sender {
 				return null;
 			}
 		}
-		
+
 		public byte[] getByteChunk() throws IOException {
 			byte[] b = new byte[CHUNK_SIZE];
 			int length = b.length;
@@ -246,7 +250,6 @@ public class Sender {
 			return b;
 		}
 
-		
 	}
-	
+
 }
