@@ -3,6 +3,8 @@ package cp372_a2;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -25,6 +27,8 @@ public class Reciever {
 	public String file;
 	public DatagramSocket ds;
 	public boolean reliability = true;
+	
+	FileOutputStream fileOutput;
 
 	private JFrame frame;
 	private JTextField ipAddressText;
@@ -136,13 +140,17 @@ public class Reciever {
 				ipAddress = ipAddressText.getText();
 				port = portTextSender.getText();
 				file = fileNameText.getText();
+				
 				if (buttonGroup.getSelection().equals(reliableButton.getModel())) {
 					reliability = true;
 				} else {
 					reliability = false;
 				}
+				
 				try {
+					// get the Inet address
 					InetAddress address = InetAddress.getByName(ipAddress);
+					// create the datagramsocket that will send ack and receive data
 					ds = new DatagramSocket(Integer.parseInt(port));
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
@@ -151,11 +159,68 @@ public class Reciever {
 				} catch (SocketException e) {
 					e.printStackTrace();
 				}
+				
+				// create the output file descriptor
 				try {
-					ds.receive(dp);
-				} catch (IOException e) {
-					e.printStackTrace();
+					fileOutput = new FileOutputStream(file);
+				} catch (FileNotFoundException e1) {
+					outputText.setText("File not found, please enter a proper filename.");
 				}
+					
+				boolean isDone = false;
+				byte sequenceNumber = 0;
+				
+				while(isDone == false) {
+					
+					// try to receive the packet
+					try {
+						ds.receive(dp);
+					} catch (IOException e) {
+						outputText.setText("Packet not received.");
+						e.printStackTrace();
+					}
+					
+					// get the data from the datagram packet
+					byte[] receivedData = dp.getData();
+					// checks if this is the last packet
+					if(receivedData[0] < 0) { 
+						// send ack that we received the last packet
+						// ***some code to send ask here***
+						//
+						isDone = true;
+					}
+					
+					// wrong packet sent, send NAK
+					else if(sequenceNumber != receivedData[0]) {
+						
+					}
+					
+					// right sequence number
+					else {
+					// write to file
+						for(int i = 2; i < 2 + receivedData[1]; i++) {
+							try {
+								fileOutput.write(receivedData[i]);
+							} catch (IOException e) {
+								outputText.setText("Writing to file failed.");
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					// check if sequence number
+					if(sequenceNumber == 127) {
+						sequenceNumber = 0;
+					} else {
+						sequenceNumber++;
+					}
+					
+					// send ack
+					
+					
+					System.out.println(dp.getData().length);
+				}
+				
 				System.out.println(dp.getData().length);
 				ds.close();
 			}
