@@ -27,6 +27,7 @@ public class Reciever {
 	public String file;
 	public DatagramSocket ds;
 	public boolean reliability = true;
+	public int reliabilityNum = 0;
 	
 	FileOutputStream fileOutput;
 
@@ -168,60 +169,70 @@ public class Reciever {
 				}
 					
 				boolean isDone = false;
-				byte sequenceNumber = 0;
 				
 				while(isDone == false) {
 					
-					// try to receive the packet
-					try {
-						ds.receive(dp);
-					} catch (IOException e) {
-						outputText.setText("Packet not received.");
-						e.printStackTrace();
+					// 10 packet gets dropped
+					// only this if statement gets executed so no packet is received aka dropped
+					if(reliability == false && reliabilityNum == 10) {
+							reliabilityNum = 0;
 					}
 					
-					// get the data from the datagram packet
-					byte[] receivedData = dp.getData();
-					// checks if this is the last packet
-					if(receivedData[0] < 0) { 
-						// send ack that we received the last packet
-						// ***some code to send ask here***
-						//
-						isDone = true;
-					}
-					
-					// wrong packet sent, send NAK
-					else if(sequenceNumber != receivedData[0]) {
-						
-					}
-					
-					// right sequence number
 					else {
-					// write to file
-						for(int i = 2; i < 2 + receivedData[1]; i++) {
-							try {
-								fileOutput.write(receivedData[i]);
-							} catch (IOException e) {
-								outputText.setText("Writing to file failed.");
-								e.printStackTrace();
+					
+					// try to receive the packet
+						try {
+							ds.receive(dp);
+						} catch (IOException e) {
+							outputText.setText("Packet not received.");
+							e.printStackTrace();
+						}
+						
+						// get the data from the datagram packet
+						byte[] receivedData = dp.getData();
+						System.out.println("packet received kinda");
+						// checks if this is the last packet
+						if(receivedData[0] < 0) { 
+							// send ack that we received the last packet
+							// ***some code to send LAST ack here***
+							
+							for(int i = 2; i < 2 + receivedData[1]; i++) {
+								try {
+									fileOutput.write(receivedData[i]);
+									System.out.println("gang");
+								} catch (IOException e) {
+									outputText.setText("Writing to file failed.");
+									e.printStackTrace();
+								}
+							}
+							
+							System.out.println("end");
+							isDone = true;
+						}
+						
+						// normal packet 
+						else {
+							System.out.println("in else");
+						// write to file
+							for(int i = 2; i < 2 + receivedData[1]; i++) {
+								try {
+									fileOutput.write(receivedData[i]);
+									System.out.println("gang");
+								} catch (IOException e) {
+									outputText.setText("Writing to file failed.");
+									e.printStackTrace();
+								}
 							}
 						}
+						// send ack
+						// *** ACK CODE ***
+						reliabilityNum++;
+						
 					}
-					
-					// check if sequence number
-					if(sequenceNumber == 127) {
-						sequenceNumber = 0;
-					} else {
-						sequenceNumber++;
-					}
-					
-					// send ack
-					
-					
-					System.out.println(dp.getData().length);
+//					System.out.println("Closing receiving socket.");
+//					ds.close();
 				}
-				
-				System.out.println(dp.getData().length);
+				System.out.println("Closing receiving socket.");
 				ds.close();
 			}
 		});

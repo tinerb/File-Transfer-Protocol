@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Calendar;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -167,7 +168,6 @@ public class Sender {
 					timeout = Integer.parseInt(timeoutText.getText());
 
 					try {
-						System.out.println("sockets");
 						ip = InetAddress.getByName(ipAddress);
 						ds = new DatagramSocket(senderPortNum, ip);
 						SendFile outFile = new SendFile(filename);
@@ -186,24 +186,41 @@ public class Sender {
 							
 							arrayToSend[1] = (byte) data.length;
 							// getting a ArrayIndexOutOfBoundsException under this comment
-							System.out.println("data.length: " + data.length);
-							System.out.println("arrayToSend length: " + arrayToSend.length);
 							System.arraycopy(data, 0, arrayToSend, 2, data.length);
 							dp = new DatagramPacket(arrayToSend, arrayToSend.length, ip, receiverPortNum);
+							
 							ds.send(dp);
-							// setting count back to 0
-							if (count == 127) {
-								count = 0;
+							// setting count back proper send number
+							if (count == 0) {
+								count = 1;
 							} else {
-								count = (byte) (count + 1);
+								count = 0;
 							}
+							
+							// get the current time and compare until timeout time has been reached
+					        long startTime = System.currentTimeMillis();
+					        long currentTime = startTime;
+							System.out.println("currentTime: " + currentTime);
+							System.out.println("startTime: " + startTime);
+					        // this loop isnt working as it should
+					        while(currentTime < startTime + timeout) {
+					        	currentTime = System.currentTimeMillis();
+					        	//System.out.println("timing out");
+					        }
+					        System.out.println("currentTime: " + currentTime);
+							// receive ACK here
+							// if no ACK we wait the timeout amount for the ACK to get into socket
+							
+							// else we do not increase the DATA file variable, send the same data back
+							
 							// getting next chunk of data
+					        System.out.println("Incrementing sendfile data.");
 							data = outFile.getByteChunk();
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-					System.out.println("file transfer done, closing socket.");
+					System.out.println("File transfer done, closing socket.");
 					ds.close();
 				}
 			}
@@ -260,13 +277,10 @@ public class Sender {
 			}
 
 			// Copy our data into where need it to be
-			System.out.println("before b.length: " + b.length);
 			System.arraycopy(this.send_data, this.offset, b, 0, b.length);
 			// adding to offset
 			this.offset += b.length;
 			
-			System.out.println("b.length: " + b.length);
-
 			return b;
 		}
 
