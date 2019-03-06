@@ -250,12 +250,12 @@ public class Sender {
 			}
 			// if the rest of the array is smaller than the max datagram size
 			if (this.offset + b.length > this.send_data.length) {
-				int length = this.offset + b.length - this.send_data.length;
+				
+				// find the rest of the to send
+				int length = this.send_data.length - this.offset;
 				b = new byte[length];
-				// *** SOMETHING HERE IS WRONG ***
-				System.out.println("getByteChunk: " + (this.offset + b.length - this.send_data.length));
-				System.out.println("b.length when not even: " + b.length + " length: " + length);
 				System.arraycopy(this.send_data, this.offset, b, 0, b.length);
+				this.offset += b.length;
 				return b;
 			}
 
