@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,14 +28,18 @@ public class Sender {
 	private JTextField portNumTextSender;
 
 	public String ipAddress;
-	public int portNum;
+	public int receiverPortNum;
+	public int senderPortNum;
 	public String filename;
 	public static int maxDatagramSize;
 	public int timeout; // in microseconds
-
 	public DatagramSocket ds;
 	public InetAddress ip;
 	public DatagramPacket dp;
+	public byte arrayToSend[];
+	public byte data[];
+	public byte count = 0;
+	public boolean sent = true;
 
 	/**
 	 * Launch the application.
@@ -155,47 +157,42 @@ public class Sender {
 						|| timeoutText.getText().equals("")) {
 					System.out.println("Please enter values for each text field to begin transfer");
 				} else {
-					portNum = Integer.parseInt(portNumTextReceiver.getText());
+					receiverPortNum = Integer.parseInt(portNumTextReceiver.getText());
+					senderPortNum = Integer.parseInt(portNumTextSender.getText());
 					ipAddress = ipAddressText.getText();
 					filename = filenameText.getText();
 					maxDatagramSize = Integer.parseInt(datagramSizeText.getText());
 					timeout = Integer.parseInt(timeoutText.getText());
 
-					// input debugging
-					System.out.println("portNum: " + portNum + " ipAddress: " + ipAddress + " filename: " + filename
-							+ " maxDatagramSize: " + maxDatagramSize + " timeout: " + timeout + "\n");
-
-					try {
-						ds = new DatagramSocket();
-
-					} catch (SocketException e1) {
-						e1.printStackTrace();
-					}
-					String str = "FUCK THIS";
 					try {
 						ip = InetAddress.getByName(ipAddress);
-					} catch (UnknownHostException e1) {
-						e1.printStackTrace();
-					}
-					SendFile test;
-					try {
-						test = new SendFile(filename);
-						dp = new DatagramPacket(test.send_data, test.send_data.length, ip, portNum);
-					} catch (FileNotFoundException e2) {
-						e2.printStackTrace();
-					}
-					try {
-						ds.send(dp);
+						ds = new DatagramSocket(senderPortNum, ip);
+						SendFile outFile = new SendFile(filename);
+						arrayToSend = new byte[2 + maxDatagramSize];
+						// setting buf array to first chunk
+						data = outFile.getByteChunk();
+						while (data.length > 0) {
+							arrayToSend[0] = count;
+							arrayToSend[1] = (byte) data.length;
+							System.arraycopy(data, 0, arrayToSend, 2, data.length);
+							dp = new DatagramPacket(arrayToSend, arrayToSend.length, ip, receiverPortNum);
+							ds.send(dp);
+							// setting count back to 0
+							if (count == 127) {
+								count = 0;
+							} else {
+								count = (byte) (count + 1);
+							}
+							// getting next chunk of data
+							data = outFile.getByteChunk();
+						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 					ds.close();
-
 				}
-
 			}
 		});
-
 	}
 
 	public static class SendFile {
@@ -230,22 +227,20 @@ public class Sender {
 
 		public byte[] getByteChunk() throws IOException {
 			byte[] b = new byte[CHUNK_SIZE];
-			int length = b.length;
-
-			if (this.offset == this.send_data.length) {
-				// close down the link
-				System.out.println("It's over");
+			// when the end of the file has been found
+			if (this.offset >= this.send_data.length) {
+				return new byte[0];
 			}
-
+			// if the rest of the array is smaller than the max datagram size
 			if (this.offset + b.length > this.send_data.length) {
-				length = 1;
-				b = new byte[length];
+				b = new byte[this.offset + b.length - this.send_data.length];
+				System.out.println(this.offset + b.length - this.send_data.length);
 			}
 
 			// Copy our data into where need it to be
-			System.arraycopy(this.send_data, this.offset, b, 0, length);
-
-			this.offset += length;
+			System.arraycopy(this.send_data, this.offset, b, 0, b.length);
+			// adding to offset
+			this.offset += b.length;
 
 			return b;
 		}
