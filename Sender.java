@@ -130,7 +130,7 @@ public class Sender {
 		sendButton.setBounds(85, 175, 89, 23);
 		frame.getContentPane().add(sendButton);
 
-		JLabel lblNewLabel_4 = new JLabel("Transmission Time: ");
+		JLabel lblNewLabel_4 = new JLabel("Transmission Time(ms): ");
 		lblNewLabel_4.setBounds(10, 214, 144, 14);
 		frame.getContentPane().add(lblNewLabel_4);
 
@@ -153,7 +153,7 @@ public class Sender {
 		sendButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("clicked");
+				long startTime = System.currentTimeMillis();
 				if (ipAddressText.getText().equals("") || portNumTextReceiver.getText().equals("")
 						|| filenameText.getText().equals("") || datagramSizeText.getText().equals("")
 						|| timeoutText.getText().equals("")) {
@@ -168,7 +168,6 @@ public class Sender {
 					timeout = Integer.parseInt(timeoutText.getText());
 
 					try {
-						long startTime = System.currentTimeMillis();
 						ip = InetAddress.getByName(ipAddress);
 						ds = new DatagramSocket();
 						ackSocket = new DatagramSocket(senderPortNum);
@@ -179,7 +178,6 @@ public class Sender {
 						// setting buf array to first chunk
 						data = outFile.getByteChunk();
 						while (true) {
-							System.out.println("Offset: " + outFile.offset);
 							if (outFile.offset >= outFile.send_data.length) {
 								arrayToSend[0] = -1;
 							} else {
@@ -188,11 +186,9 @@ public class Sender {
 							arrayToSend[1] = (byte) data.length;
 							System.arraycopy(data, 0, arrayToSend, 2, data.length);
 							dp = new DatagramPacket(arrayToSend, arrayToSend.length, ip, receiverPortNum);
-
 							ds.send(dp);
 							try {
 								ackSocket.receive(ackPacket);
-								System.out.println("count: " + ackPacket.getData()[0]);
 								// setting count back proper send number
 								if (count == 0 && ackPacket.getData()[0] == 0) {
 									count = 1;
@@ -204,14 +200,15 @@ public class Sender {
 									break;
 								}
 							} catch (SocketTimeoutException e1) {
-								System.out.println("Packet was dropped");
+
 							}
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-					System.out.println("File transfer done, closing socket.");
+					long endTime = System.currentTimeMillis();
 					ds.close();
+					transmissionTime.setText(Long.toString(endTime - startTime));
 				}
 			}
 		});
@@ -269,7 +266,6 @@ public class Sender {
 			// Copy our data into where need it to be
 			System.arraycopy(this.send_data, this.offset, b, 0, b.length);
 			// adding to offset
-			System.out.println("length: " + b.length);
 			this.offset += b.length;
 
 			return b;
