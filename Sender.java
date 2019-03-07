@@ -115,7 +115,7 @@ public class Sender {
 		frame.getContentPane().add(datagramSizeText);
 		datagramSizeText.setColumns(10);
 
-		JLabel lblTimeout = new JLabel("Timeout(microseconds):  ");
+		JLabel lblTimeout = new JLabel("Timeout(ms):  ");
 		lblTimeout.setBounds(10, 139, 157, 14);
 		frame.getContentPane().add(lblTimeout);
 
