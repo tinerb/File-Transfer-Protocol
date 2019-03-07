@@ -41,6 +41,7 @@ public class Sender {
 	public byte arrayToSend[];
 	public byte data[];
 	public byte count = 0;
+	private JTextField outputText;
 
 	/**
 	 * Launch the application.
@@ -72,7 +73,7 @@ public class Sender {
 	private void initialize() {
 
 		frame = new JFrame("Sender");
-		frame.setBounds(100, 100, 295, 300);
+		frame.setBounds(100, 100, 295, 348);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
@@ -150,15 +151,27 @@ public class Sender {
 		frame.getContentPane().add(portNumTextSender);
 		portNumTextSender.setColumns(10);
 
+		JLabel lblOutput = new JLabel("Output:");
+		lblOutput.setBounds(10, 239, 46, 14);
+		frame.getContentPane().add(lblOutput);
+
+		outputText = new JTextField();
+		outputText.setEditable(false);
+		outputText.setBounds(10, 257, 240, 41);
+		frame.getContentPane().add(outputText);
+		outputText.setColumns(10);
+
 		sendButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				long startTime = System.currentTimeMillis();
 				if (ipAddressText.getText().equals("") || portNumTextReceiver.getText().equals("")
 						|| filenameText.getText().equals("") || datagramSizeText.getText().equals("")
-						|| timeoutText.getText().equals("")) {
-					System.out.println("Please enter values for each text field to begin transfer");
+						|| timeoutText.getText().equals("") || Integer.parseInt(datagramSizeText.getText()) < 1
+						|| Integer.parseInt(datagramSizeText.getText()) > 127) {
+					outputText.setText("Please enter valid values");
 				} else {
+					outputText.setText("File transmission started");
 					// store user input
 					receiverPortNum = Integer.parseInt(portNumTextReceiver.getText());
 					senderPortNum = Integer.parseInt(portNumTextSender.getText());
@@ -206,6 +219,7 @@ public class Sender {
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
+					outputText.setText("File transmission ended");
 					long endTime = System.currentTimeMillis();
 					ds.close();
 					transmissionTime.setText(Long.toString(endTime - startTime));
@@ -272,5 +286,4 @@ public class Sender {
 		}
 
 	}
-
 }
