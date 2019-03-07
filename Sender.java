@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Calendar;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -169,26 +168,23 @@ public class Sender {
 
 					try {
 						ip = InetAddress.getByName(ipAddress);
-						ds = new DatagramSocket(senderPortNum, ip);
+						ds = new DatagramSocket();
+						ds.connect(ip, receiverPortNum);
 						SendFile outFile = new SendFile(filename);
 						arrayToSend = new byte[2 + maxDatagramSize];
 						// setting buf array to first chunk
 						data = outFile.getByteChunk();
 						while (data.length > 0) {
-							
-							if(outFile.offset + arrayToSend.length > outFile.send_data.length) {
+							if (outFile.offset + arrayToSend.length > outFile.send_data.length) {
 								arrayToSend[0] = -1;
-							}
-							
-							else {
+							} else {
 								arrayToSend[0] = count;
 							}
-							
 							arrayToSend[1] = (byte) data.length;
 							// getting a ArrayIndexOutOfBoundsException under this comment
 							System.arraycopy(data, 0, arrayToSend, 2, data.length);
 							dp = new DatagramPacket(arrayToSend, arrayToSend.length, ip, receiverPortNum);
-							
+
 							ds.send(dp);
 							// setting count back proper send number
 							if (count == 0) {
@@ -196,25 +192,25 @@ public class Sender {
 							} else {
 								count = 0;
 							}
-							
+
 							// get the current time and compare until timeout time has been reached
-					        long startTime = System.currentTimeMillis();
-					        long currentTime = startTime;
+							long startTime = System.currentTimeMillis();
+							long currentTime = startTime;
 							System.out.println("currentTime: " + currentTime);
 							System.out.println("startTime: " + startTime);
-					        // this loop isnt working as it should
-					        while(currentTime < startTime + timeout) {
-					        	currentTime = System.currentTimeMillis();
-					        	//System.out.println("timing out");
-					        }
-					        System.out.println("currentTime: " + currentTime);
+							// this loop isnt working as it should
+							while (currentTime < startTime + timeout) {
+								currentTime = System.currentTimeMillis();
+								// System.out.println("timing out");
+							}
+							System.out.println("currentTime: " + currentTime);
 							// receive ACK here
 							// if no ACK we wait the timeout amount for the ACK to get into socket
-							
+
 							// else we do not increase the DATA file variable, send the same data back
-							
+
 							// getting next chunk of data
-					        System.out.println("Incrementing sendfile data.");
+							System.out.println("Incrementing sendfile data.");
 							data = outFile.getByteChunk();
 						}
 					} catch (IOException e1) {
@@ -256,7 +252,7 @@ public class Sender {
 				return null;
 			}
 		}
-		
+
 		// C:\Users\Adam Gumieniak\eclipse-workspace\CP372_a2\src\cp372_a2\README.md
 
 		public byte[] getByteChunk() throws IOException {
@@ -267,7 +263,7 @@ public class Sender {
 			}
 			// if the rest of the array is smaller than the max datagram size
 			if (this.offset + b.length > this.send_data.length) {
-				
+
 				// find the rest of the to send
 				int length = this.send_data.length - this.offset;
 				b = new byte[length];
@@ -280,7 +276,7 @@ public class Sender {
 			System.arraycopy(this.send_data, this.offset, b, 0, b.length);
 			// adding to offset
 			this.offset += b.length;
-			
+
 			return b;
 		}
 
