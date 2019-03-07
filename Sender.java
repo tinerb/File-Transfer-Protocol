@@ -33,9 +33,9 @@ public class Sender {
 	public String filename;
 	public static int maxDatagramSize;
 	public int timeout; // in microseconds
-	public DatagramSocket ds;
+	public DatagramSocket ds, ackSocket;
 	public InetAddress ip;
-	public DatagramPacket dp;
+	public DatagramPacket dp, ackPacket;
 	public byte arrayToSend[];
 	public byte data[];
 	public byte count = 0;
@@ -167,51 +167,38 @@ public class Sender {
 					timeout = Integer.parseInt(timeoutText.getText());
 
 					try {
+						long startTime = System.currentTimeMillis();
 						ip = InetAddress.getByName(ipAddress);
 						ds = new DatagramSocket();
+						ackSocket = new DatagramSocket(senderPortNum);
+						ackSocket.setSoTimeout(timeout);
 						ds.connect(ip, receiverPortNum);
 						SendFile outFile = new SendFile(filename);
 						arrayToSend = new byte[2 + maxDatagramSize];
 						// setting buf array to first chunk
 						data = outFile.getByteChunk();
 						while (data.length > 0) {
-							if (outFile.offset + arrayToSend.length > outFile.send_data.length) {
+							if (outFile.offset + arrayToSend.length >= outFile.send_data.length) {
 								arrayToSend[0] = -1;
 							} else {
 								arrayToSend[0] = count;
 							}
 							arrayToSend[1] = (byte) data.length;
-							// getting a ArrayIndexOutOfBoundsException under this comment
 							System.arraycopy(data, 0, arrayToSend, 2, data.length);
 							dp = new DatagramPacket(arrayToSend, arrayToSend.length, ip, receiverPortNum);
 
 							ds.send(dp);
+							ackSocket.receive(ackPacket);
 							// setting count back proper send number
-							if (count == 0) {
+							if (count == 0 && ackPacket.getData()[0] == 0) {
 								count = 1;
-							} else {
+								data = outFile.getByteChunk();
+							} else if (count == 1 && ackPacket.getData()[0] == 1) {
 								count = 0;
+								data = outFile.getByteChunk();
+							} else {
+								System.out.println("Packet was dropped");
 							}
-
-							// get the current time and compare until timeout time has been reached
-							long startTime = System.currentTimeMillis();
-							long currentTime = startTime;
-							System.out.println("currentTime: " + currentTime);
-							System.out.println("startTime: " + startTime);
-							// this loop isnt working as it should
-							while (currentTime < startTime + timeout) {
-								currentTime = System.currentTimeMillis();
-								// System.out.println("timing out");
-							}
-							System.out.println("currentTime: " + currentTime);
-							// receive ACK here
-							// if no ACK we wait the timeout amount for the ACK to get into socket
-
-							// else we do not increase the DATA file variable, send the same data back
-
-							// getting next chunk of data
-							System.out.println("Incrementing sendfile data.");
-							data = outFile.getByteChunk();
 						}
 					} catch (IOException e1) {
 						e1.printStackTrace();
