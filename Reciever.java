@@ -246,26 +246,6 @@ public class Reciever {
 									e.printStackTrace();
 								}
 							}
-							
-//							ackBuf[0] = (byte) count;
-//							try {
-//								ackPacket = new DatagramPacket(ackBuf, ackBuf.length, InetAddress.getByName(ipAddress), Integer.parseInt(outPort));
-//							} catch (NumberFormatException | UnknownHostException e1) {
-//								e1.printStackTrace();
-//							}
-//							try {
-//								ackSocket.send(ackPacket);
-//							} catch (IOException e) {
-//								e.printStackTrace();
-//							}
-//							
-//							if(count == 0) {
-//								count = 1;
-//							} else {
-//								count = 0;
-//							}
-//							
-//							reliabilityNum++;	
 						}
 						
 						ackBuf[0] = (byte) count;
