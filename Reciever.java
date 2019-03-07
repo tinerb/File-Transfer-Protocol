@@ -21,13 +21,18 @@ import javax.swing.JTextField;
 
 public class Reciever {
 	public byte[] buf = new byte[1024];
+	public byte[] ackBuf = new byte[1];
 	public DatagramPacket dp = new DatagramPacket(buf, 1024);
+	public DatagramPacket ackPacket = new DatagramPacket(buf, 1);
 	public String ipAddress;
-	public String port;
+	public String inPort;
+	public String outPort;
 	public String file;
 	public DatagramSocket ds;
+	public DatagramSocket ackSocket;
 	public boolean reliability = true;
-	public int reliabilityNum = 0;
+	public int count = 0;
+	public long reliabilityNum = 0;
 	
 	FileOutputStream fileOutput;
 
@@ -139,7 +144,8 @@ public class Reciever {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				ipAddress = ipAddressText.getText();
-				port = portTextSender.getText();
+				inPort = portTextSender.getText();
+				outPort = portTextReceiver.getText();
 				file = fileNameText.getText();
 				
 				if (buttonGroup.getSelection().equals(reliableButton.getModel())) {
@@ -151,8 +157,11 @@ public class Reciever {
 				try {
 					// get the Inet address
 					InetAddress address = InetAddress.getByName(ipAddress);
-					// create the datagramsocket that will send ack and receive data
-					ds = new DatagramSocket(Integer.parseInt(port));
+					// create the datagramsocket that will receive data
+					ds = new DatagramSocket(Integer.parseInt(inPort));
+				
+					ackSocket = new DatagramSocket();
+					ackSocket.connect(address, Integer.parseInt(outPort));
 				} catch (UnknownHostException e) {
 					e.printStackTrace();
 				} catch (NumberFormatException e) {
@@ -176,12 +185,14 @@ public class Reciever {
 					// only this if statement gets executed so no packet is received aka dropped
 					if(reliability == false && reliabilityNum == 10) {
 							reliabilityNum = 0;
+							System.out.println("10th packet dropped.");
 					}
 					
 					else {
 					
 					// try to receive the packet
 						try {
+							//ds.setSoTimeout(1000);
 							ds.receive(dp);
 						} catch (IOException e) {
 							outputText.setText("Packet not received.");
@@ -190,12 +201,12 @@ public class Reciever {
 						
 						// get the data from the datagram packet
 						byte[] receivedData = dp.getData();
-						System.out.println("packet received kinda");
+						System.out.println("Packet received.");
 						// checks if this is the last packet
+						System.out.println("receivedData[0]: " + receivedData[0]);
 						if(receivedData[0] < 0) { 
 							// send ack that we received the last packet
-							// ***some code to send LAST ack here***
-							
+							System.out.println("in if receivedData[0]: " + receivedData[0]);
 							for(int i = 2; i < 2 + receivedData[1]; i++) {
 								try {
 									fileOutput.write(receivedData[i]);
@@ -204,6 +215,18 @@ public class Reciever {
 									outputText.setText("Writing to file failed.");
 									e.printStackTrace();
 								}
+							}
+							
+							ackBuf[0] = -1;
+							try {
+								ackPacket = new DatagramPacket(ackBuf, ackBuf.length, InetAddress.getByName(ipAddress), Integer.parseInt(outPort));
+							} catch (NumberFormatException | UnknownHostException e1) {
+								e1.printStackTrace();
+							}
+							try {
+								ackSocket.send(ackPacket);
+							} catch (IOException e) {
+								e.printStackTrace();
 							}
 							
 							System.out.println("end");
@@ -223,14 +246,48 @@ public class Reciever {
 									e.printStackTrace();
 								}
 							}
+							
+//							ackBuf[0] = (byte) count;
+//							try {
+//								ackPacket = new DatagramPacket(ackBuf, ackBuf.length, InetAddress.getByName(ipAddress), Integer.parseInt(outPort));
+//							} catch (NumberFormatException | UnknownHostException e1) {
+//								e1.printStackTrace();
+//							}
+//							try {
+//								ackSocket.send(ackPacket);
+//							} catch (IOException e) {
+//								e.printStackTrace();
+//							}
+//							
+//							if(count == 0) {
+//								count = 1;
+//							} else {
+//								count = 0;
+//							}
+//							
+//							reliabilityNum++;	
 						}
-						// send ack
-						// *** ACK CODE ***
-						reliabilityNum++;
 						
+						ackBuf[0] = (byte) count;
+						try {
+							ackPacket = new DatagramPacket(ackBuf, ackBuf.length, InetAddress.getByName(ipAddress), Integer.parseInt(outPort));
+						} catch (NumberFormatException | UnknownHostException e1) {
+							e1.printStackTrace();
+						}
+						try {
+							ackSocket.send(ackPacket);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						
+						if(count == 0) {
+							count = 1;
+						} else {
+							count = 0;
+						}
+						
+						reliabilityNum++;	
 					}
-//					System.out.println("Closing receiving socket.");
-//					ds.close();
 				}
 				System.out.println("Closing receiving socket.");
 				ds.close();
