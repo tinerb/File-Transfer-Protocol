@@ -32,7 +32,7 @@ public class Sender {
 	public int receiverPortNum;
 	public int senderPortNum;
 	public String filename;
-	public static int maxDatagramSize;
+	public int maxDatagramSize;
 	public int timeout; // in microseconds
 	public DatagramSocket ds, ackSocket;
 	public InetAddress ip;
@@ -179,7 +179,7 @@ public class Sender {
 						// setting buf array to first chunk
 						data = outFile.getByteChunk();
 						while (true) {
-							System.out.println(outFile.offset);
+							System.out.println("Offset: " + outFile.offset);
 							if (outFile.offset >= outFile.send_data.length) {
 								arrayToSend[0] = -1;
 							} else {
@@ -192,7 +192,7 @@ public class Sender {
 							ds.send(dp);
 							try {
 								ackSocket.receive(ackPacket);
-								System.out.println(ackPacket.getData()[0]);
+								System.out.println("count: " + ackPacket.getData()[0]);
 								// setting count back proper send number
 								if (count == 0 && ackPacket.getData()[0] == 0) {
 									count = 1;
@@ -217,7 +217,7 @@ public class Sender {
 		});
 	}
 
-	public static class SendFile {
+	public class SendFile {
 
 		private int CHUNK_SIZE = maxDatagramSize;
 
@@ -269,6 +269,7 @@ public class Sender {
 			// Copy our data into where need it to be
 			System.arraycopy(this.send_data, this.offset, b, 0, b.length);
 			// adding to offset
+			System.out.println("length: " + b.length);
 			this.offset += b.length;
 
 			return b;
