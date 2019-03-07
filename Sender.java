@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,11 +36,11 @@ public class Sender {
 	public int timeout; // in microseconds
 	public DatagramSocket ds, ackSocket;
 	public InetAddress ip;
-	public DatagramPacket dp, ackPacket;
+	public byte ack[] = new byte[1];
+	public DatagramPacket dp, ackPacket = new DatagramPacket(ack, ack.length);
 	public byte arrayToSend[];
 	public byte data[];
 	public byte count = 0;
-	public boolean sent = true;
 
 	/**
 	 * Launch the application.
@@ -177,8 +178,9 @@ public class Sender {
 						arrayToSend = new byte[2 + maxDatagramSize];
 						// setting buf array to first chunk
 						data = outFile.getByteChunk();
-						while (data.length > 0) {
-							if (outFile.offset + arrayToSend.length >= outFile.send_data.length) {
+						while (true) {
+							System.out.println(outFile.offset);
+							if (outFile.offset >= outFile.send_data.length) {
 								arrayToSend[0] = -1;
 							} else {
 								arrayToSend[0] = count;
@@ -188,15 +190,20 @@ public class Sender {
 							dp = new DatagramPacket(arrayToSend, arrayToSend.length, ip, receiverPortNum);
 
 							ds.send(dp);
-							ackSocket.receive(ackPacket);
-							// setting count back proper send number
-							if (count == 0 && ackPacket.getData()[0] == 0) {
-								count = 1;
-								data = outFile.getByteChunk();
-							} else if (count == 1 && ackPacket.getData()[0] == 1) {
-								count = 0;
-								data = outFile.getByteChunk();
-							} else {
+							try {
+								ackSocket.receive(ackPacket);
+								System.out.println(ackPacket.getData()[0]);
+								// setting count back proper send number
+								if (count == 0 && ackPacket.getData()[0] == 0) {
+									count = 1;
+									data = outFile.getByteChunk();
+								} else if (count == 1 && ackPacket.getData()[0] == 1) {
+									count = 0;
+									data = outFile.getByteChunk();
+								} else if (ackPacket.getData()[0] == -1) {
+									break;
+								}
+							} catch (SocketTimeoutException e1) {
 								System.out.println("Packet was dropped");
 							}
 						}
